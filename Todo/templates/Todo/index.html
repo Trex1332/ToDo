@@ -1,6 +1,47 @@
 {% extends 'Todo/base.html' %}
 
 {% block content %}
-    <br>
-    test
+    <h1>Todo list</h1>
+
+    <ul>
+        <Button onclick="Add()" id="add">Add</Button>
+        <div hidden="true">
+            test
+        </div>
+        {% for Todo in todos %}
+            <li id="todo-{{ Todo.id }}">
+                {{ Todo.title }}
+                <br>
+                {{ Todo.description }}
+                <br>
+                <label for="check">Complete:</label>
+                <button onclick="deleteTodo('{{ Todo.id }}')" id="complete-{{ Todo.id }}">Complete</button>
+
+
+
+            </li>
+        {% endfor %}
+    </ul>
+
+
+    <script>
+        const csrftoken = '{{ csrf_token }}';
+
+        function deleteTodo(todoId) {
+            fetch(`/delete/${todoId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`todo-${todoId}`).remove();
+                } else {
+                    alert("Could not delete the todo.");
+                }
+            });
+        }
+    </script>
 {% endblock %}
