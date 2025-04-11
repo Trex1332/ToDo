@@ -1,27 +1,43 @@
 {% extends 'Todo/base.html' %}
 
 {% block content %}
+
     <h1>Todo list</h1>
+    <div id="buttonandform">
+    <Button onclick="openadd()" id="add">Add</Button>
+    <br>
+    <div id="addform" style="display: none;">
+        <form onsubmit="addform(event)">
+            
+            {% csrf_token %}
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+            <br>
+            <label for="description">Description:</label>
+            <input type="text" id="description">
 
-    <ul>
-        <Button onclick="Add()" id="add">Add</Button>
-        <div hidden="true">
-            test
-        </div>
+            <br> 
+            <button type="submit">Add Task</button>
+        </form>
+    </div>
+</div>   
+
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Complete</th>
+        </tr>
         {% for Todo in todos %}
-            <li id="todo-{{ Todo.id }}">
-                {{ Todo.title }}
-                <br>
-                {{ Todo.description }}
-                <br>
-                <label for="check">Complete:</label>
-                <button onclick="deleteTodo('{{ Todo.id }}')" id="complete-{{ Todo.id }}">Complete</button>
-
-
-
-            </li>
+            <tr id="todo-{{ Todo.id }}">
+                <td>{{ Todo.title }}</td>
+                <td>{{ Todo.description }}</td>
+                <td><button onclick="deleteTodo('{{ Todo.id }}')" id="complete-{{ Todo.id }}">Complete</button></td>
+            </tr>
         {% endfor %}
-    </ul>
+    </table>
+
+
 
 
     <script>
@@ -43,5 +59,52 @@
                 }
             });
         }
-    </script>
+
+        function openadd(){
+            var x = document.getElementById("addform");
+            var y = document.getElementById("add");
+            if (x.style.display === "none") {
+                y.innerHTML = "Close";
+            } else {
+                y.innerHTML = "Add";
+            }
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+
+        }
+
+        function addform(event){
+            event.preventDefault(); 
+
+            const title = document.getElementById("title").value;
+            const description = document.getElementById("description").value;
+            console.log("test");
+            fetch('/add/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title: title, description: description })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .then(data => {
+                console.log('Success:', data);
+                // Optionally clear form or show success message
+                document.getElementById("title").value = "";
+                 document.getElementById("description").value = "";
+
+                 location.reload();
+            })
+        }
+        </script>
 {% endblock %}

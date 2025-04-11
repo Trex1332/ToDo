@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Todo(models.Model):
+    session_key = models.CharField(max_length=40)  
     title = models.CharField(max_length=100)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
